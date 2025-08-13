@@ -1,63 +1,10 @@
-# Billz - Controle Financeiro Pessoal
+-- 🚀 Setup do Banco de Dados - Billz
+-- Execute este SQL no SQL Editor do Supabase
 
-Um aplicativo PWA (Progressive Web App) completo para controle financeiro pessoal, desenvolvido com Next.js 14, TypeScript, Supabase e shadcn/ui.
-
-## 🚀 Funcionalidades
-
-- **Controle Financeiro**: Adicione saldos, salários e dívidas
-- **Gestão de Dívidas**: Controle dívidas recorrentes e pagamentos
-- **Cupons de Desconto**: Salve e gerencie cupons com QR codes
-- **Cartões de Desconto**: Crie cartões de fidelidade com QR codes
-- **Gráficos**: Visualize sua evolução financeira mensal
-- **Multi-moedas**: Suporte para diferentes moedas com conversão preparada
-- **PWA**: Funciona offline e pode ser instalado como app
-- **Autenticação**: Sistema de login seguro com Supabase Auth
-
-## 🛠️ Tecnologias
-
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS
-- **UI Components**: shadcn/ui com Radix UI
-- **Backend**: Supabase (PostgreSQL, Auth, RLS)
-- **Gráficos**: Recharts
-- **PWA**: next-pwa
-- **QR Codes**: qrcode.react
-- **Formulários**: React Hook Form + Zod
-
-## 📋 Pré-requisitos
-
-- Node.js 18+
-- npm, yarn ou pnpm
-- Conta no Supabase
-
-## 🚀 Instalação
-
-### 1. Clone o repositório
-
-```bash
-git clone https://github.com/seu-usuario/billz.git
-cd billz
-```
-
-### 2. Instale as dependências
-
-```bash
-npm install
-# ou
-yarn install
-# ou
-pnpm install
-```
-
-### 3. Configure o Supabase
-
-1. Crie um projeto no [Supabase](https://supabase.com)
-2. Execute os seguintes comandos SQL no SQL Editor:
-
-```sql
 -- Habilitar extensões necessárias
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Criar tabela de usuários (se não existir)
+-- Criar tabela de usuários (PONTE entre auth.users e as tabelas de negócio)
 CREATE TABLE IF NOT EXISTS public.users (
     id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
     email TEXT NOT NULL,
@@ -207,187 +154,23 @@ CREATE TRIGGER update_coupons_updated_at BEFORE UPDATE ON public.coupons
 
 CREATE TRIGGER update_discount_cards_updated_at BEFORE UPDATE ON public.discount_cards
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-```
 
-3. Copie as credenciais do seu projeto:
-   - URL do projeto
-   - Chave anônima (anon key)
+-- Função para sincronizar usuários automaticamente
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.users (id, email)
+    VALUES (NEW.id, NEW.email);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
-### 4. Configure as variáveis de ambiente
+-- Trigger para criar usuário automaticamente quando se registra
+CREATE OR REPLACE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
-Crie um arquivo `.env.local` na raiz do projeto:
-
-```bash
-# Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=sua_url_do_supabase_aqui
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase_aqui
-
-# Exchange Rate API (opcional - para conversão de moedas)
-EXCHANGE_RATE_API_KEY=sua_chave_api_aqui
-EXCHANGE_RATE_API_URL=https://api.exchangerate-api.com/v4/latest
-```
-
-### 5. Execute o projeto
-
-```bash
-npm run dev
-# ou
-yarn dev
-# ou
-pnpm dev
-```
-
-O aplicativo estará disponível em `http://localhost:3000`
-
-## 📱 Funcionalidades PWA
-
-- **Instalação**: Pode ser instalado como aplicativo nativo
-- **Offline**: Funciona sem conexão com internet
-- **Notificações**: Suporte para notificações push (futuro)
-- **Responsivo**: Design mobile-first
-
-## 🔐 Autenticação
-
-- Login/registro com email e senha
-- Sessões persistentes
-- Proteção de rotas
-- Row Level Security (RLS) no banco de dados
-
-## 💰 Gestão Financeira
-
-### Saldos
-
-- Adicionar saldos e salários
-- Suporte para múltiplas moedas
-- Conversão de moedas (preparado para API)
-
-### Dívidas
-
-- Cadastro de dívidas com vencimento
-- Dívidas recorrentes (semanal, mensal, anual)
-- Marcação de pagamento
-- Histórico completo
-
-### Cupons
-
-- Cadastro de cupons de desconto
-- Geração de QR codes
-- Controle de validade
-- Histórico de uso
-
-### Cartões de Desconto
-
-- Cadastro de cartões de fidelidade
-- Geração de QR codes
-- Organização por loja
-
-## 📊 Gráficos
-
-- Evolução mensal de saldos
-- Comparativo de dívidas vs. saldos
-- Visualização do valor líquido
-- Gráficos responsivos com Recharts
-
-## 🎨 Interface
-
-- Design moderno com shadcn/ui
-- Tema claro/escuro
-- Componentes acessíveis
-- Responsivo para todos os dispositivos
-
-## 🚀 Scripts Disponíveis
-
-```bash
-# Desenvolvimento
-npm run dev
-
-# Build de produção
-npm run build
-
-# Iniciar produção
-npm run start
-
-# Linting
-npm run lint
-
-# Gerar tipos do Supabase
-npm run db:generate-types
-
-# Aplicar migrações
-npm run db:push
-
-# Reset do banco
-npm run db:reset
-```
-
-## 📁 Estrutura do Projeto
-
-```
-src/
-├── app/                    # App Router do Next.js
-├── components/            # Componentes React
-│   ├── ui/               # Componentes shadcn/ui
-│   ├── auth/             # Componentes de autenticação
-│   └── dashboard/        # Componentes do dashboard
-├── contexts/              # Contextos React
-├── hooks/                 # Hooks customizados
-├── lib/                   # Utilitários e configurações
-└── types/                 # Tipos TypeScript
-```
-
-## 🔧 Configurações Adicionais
-
-### Conversão de Moedas
-
-O aplicativo está preparado para integração com APIs de câmbio. Para ativar:
-
-1. Obtenha uma chave de API (ex: exchangerate-api.com)
-2. Configure no `.env.local`
-3. Descomente o código em `src/lib/utils.ts`
-
-### PWA
-
-- Manifest configurado
-- Service worker configurado
-- Ícones em diferentes tamanhos
-- Meta tags para iOS e Android
-
-## 🐛 Troubleshooting
-
-### Erro de conexão com Supabase
-
-- Verifique as variáveis de ambiente
-- Confirme se o projeto está ativo
-- Verifique as políticas RLS
-
-### Erro de build
-
-- Limpe o cache: `rm -rf .next`
-- Reinstale dependências: `npm install`
-- Verifique versões do Node.js
-
-### PWA não funciona
-
-- Verifique se está em HTTPS (produção)
-- Confirme configuração do manifest.json
-- Verifique service worker
-
-## 🤝 Contribuição
-
-1. Fork o projeto
-2. Crie uma branch para sua feature
-3. Commit suas mudanças
-4. Push para a branch
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
-
-## 📞 Suporte
-
-Para suporte, abra uma issue no GitHub ou entre em contato através do email: seu-email@exemplo.com
-
----
-
-**Billz** - Controle suas finanças de forma simples e eficiente! 💰✨
+-- Verificar se já existem usuários em auth.users e sincronizar
+INSERT INTO public.users (id, email)
+SELECT id, email FROM auth.users
+ON CONFLICT (id) DO NOTHING;

@@ -1,0 +1,56 @@
+Crie um PWA chamado Billz usando Next.js 14 (App Router), TypeScript, Supabase e shadcn/ui.
+
+Objetivo
+
+O Billz é um aplicativo de controle financeiro que permite:
+	•	Controlar a moeda utilizada e adicionar conversão em tempo real para outra moeda (API de câmbio mais popular e gratuita — apenas deixar código preparado para integração).
+	•	Adicionar dívidas, saldos, salário, dívidas recorrentes.
+	•	Salvar cupons de desconto que podem ser usados em lojas.
+	•	Adicionar cartões de desconto tipo “Cartão Continente” e gerar QR Code para escaneamento no mercado.
+	•	Exibir valor total de dívidas e saldo (positivo ou negativo).
+	•	Mostrar gráficos usando Recharts (estilo shadcn) para exibir evolução mensal.
+	•	Separar os dados por mês.
+	•	Login com Supabase Auth (apenas email e senha).
+	•	Banco de dados no Supabase, com RLS e policies configuradas para segurança.
+	•	UI feita totalmente com shadcn/ui.
+
+Requisitos técnicos
+	1.	Configuração PWA
+	•	Usar next-pwa e configurar manifest.json, service worker e estratégias de cache.
+	•	Suporte offline para páginas principais e assets.
+	2.	Banco de Dados Supabase
+	•	Tabelas:
+	•	users (dados do usuário autenticado)
+	•	balances (saldo, salário, moeda)
+	•	debts (dívidas e dívidas recorrentes, valor, data, recorrência)
+	•	coupons (nome, descrição, data de validade, valor/desconto, QR code gerado)
+	•	discount_cards (nome, descrição, QR code gerado)
+	•	Aplicar Row Level Security e policies para que cada usuário só acesse seus próprios dados.
+	3.	UI
+	•	Usar shadcn/ui para todos os componentes (dashboard, formulários, modais, botões, inputs, gráficos).
+	•	Dashboard com:
+	•	Resumo de saldo, total de dívidas, valor líquido.
+	•	Gráfico com evolução por mês (Recharts).
+	•	Lista de cupons e cartões de desconto com botão para gerar QR code.
+	4.	Funcionalidades
+	•	CRUD completo para cada entidade.
+	•	Seleção da moeda padrão do usuário.
+	•	Conversão para moeda desejada (API de câmbio — apenas função pronta para receber a chave e endpoint).
+	•	Geração de QR Codes localmente usando qrcode.react.
+	5.	Autenticação
+	•	Login e registro via Supabase Auth (email/senha).
+	•	Página de login protegida, redirecionamento se não estiver logado.
+	6.	Boas práticas
+	•	Componentes modulares e tipados com TypeScript.
+	•	Uso de Server Components e Client Components conforme necessário.
+	•	Organização clara da estrutura de pastas (por feature/module).
+	•	Variáveis sensíveis no .env.local.
+	7.	Extras
+	•	Usar MCP para Supabase e shadcn já prontos para uso.
+	•	Garantir compatibilidade mobile-first.
+	•	Suporte para tema claro/escuro.
+
+Me entregue:
+	•	Projeto completo configurado.
+	•	Scripts de inicialização e instruções de uso.
+	•	Código comentado explicando pontos principais.
